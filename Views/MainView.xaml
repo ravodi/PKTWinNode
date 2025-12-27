@@ -1,0 +1,1547 @@
+<Window x:Class="PKTWinNode.Views.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:PKTWinNode.Models"
+        xmlns:converters="clr-namespace:PKTWinNode.Converters"
+        mc:Ignorable="d"
+        Title="PKTWinNode"
+        Height="850"
+        Width="800"
+        MinHeight="850"
+        MinWidth="800"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        Background="#F5F5F5"
+        Icon="/Assets/Logo.png">
+
+    <Window.Resources>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:BoolToStringConverter x:Key="BoolToStringConverter"/>
+
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#005A9E"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#CCCCCC"/>
+                    <Setter Property="Foreground" Value="#666666"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="StopButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#D13438"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#A02C2F"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="InstallButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#28A745"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#218838"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="PKTWinNode"
+                          FontSize="24"
+                          FontWeight="Bold"
+                          Foreground="#333333"/>
+                <TextBlock Text="CJDNS node on Windows"
+                          FontSize="12"
+                          Foreground="#999999"
+                          Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                   Command="{Binding OpenSettingsCommand}"
+                   VerticalAlignment="Center"
+                   Cursor="Hand"
+                   Background="#007ACC"
+                   BorderThickness="0"
+                   Padding="15,10">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Background" Value="#007ACC"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                           CornerRadius="6"
+                                           Padding="{TemplateBinding Padding}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="⚙"
+                                                      FontSize="16"
+                                                      Foreground="White"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0,0,8,0"/>
+                                            <TextBlock Text="Settings"
+                                                      FontSize="14"
+                                                      FontWeight="SemiBold"
+                                                      Foreground="White"
+                                                      VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#005A9E"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#004578"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+
+        <Border Grid.Row="2"
+                Background="White"
+                CornerRadius="8"
+                Padding="20"
+                Margin="0,0,0,20"
+                MinHeight="300">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10"
+                                ShadowDepth="2"
+                                Opacity="0.2"/>
+            </Border.Effect>
+            <Grid>
+
+            <StackPanel>
+
+                <StackPanel Visibility="{Binding ShowDependenciesSection, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                    <StackPanel Visibility="{Binding WslInstallationComplete, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <TextBlock Text="⚠ Required Dependencies"
+                                  FontSize="18"
+                                  FontWeight="SemiBold"
+                                  Foreground="#D13438"
+                                  Margin="0,20,0,15"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Windows Subsystem for Linux (WSL) and Hyper-V are required to run PKTWinNode."
+                                  TextWrapping="Wrap"
+                                  Margin="0,0,0,10"
+                                  FontSize="14"
+                                  Foreground="#666666"
+                                  HorizontalAlignment="Center"
+                                  TextAlignment="Center"/>
+
+                        <StackPanel Margin="0,10,0,20" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Margin="0,5">
+                                <TextBlock Text="{Binding IsHyperVInstalled, Converter={StaticResource BoolToStringConverter}, ConverterParameter='✅|❌'}"
+                                          FontSize="16" Margin="0,0,10,0"/>
+                                <TextBlock Text="Hyper-V" FontSize="14" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,5">
+                                <TextBlock Text="{Binding IsWslInstalled, Converter={StaticResource BoolToStringConverter}, ConverterParameter='✅|❌'}"
+                                          FontSize="16" Margin="0,0,10,0"/>
+                                <TextBlock Text="Windows Subsystem for Linux (WSL)" FontSize="14" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <TextBlock Text="Click 'Install Dependencies' to install the missing components."
+                                  TextWrapping="Wrap"
+                                  Margin="0,0,0,30"
+                                  FontSize="14"
+                                  Foreground="#666666"
+                                  HorizontalAlignment="Center"
+                                  TextAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding WslInstallationComplete, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="✅ Installation Complete"
+                                  FontSize="18"
+                                  FontWeight="SemiBold"
+                                  Foreground="#28A745"
+                                  Margin="0,20,0,15"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Dependencies have been successfully installed on your system."
+                                  TextWrapping="Wrap"
+                                  Margin="0,0,0,10"
+                                  FontSize="14"
+                                  Foreground="#666666"
+                                  HorizontalAlignment="Center"
+                                  TextAlignment="Center"/>
+                        <TextBlock Text="Please restart your computer to complete the installation."
+                                  TextWrapping="Wrap"
+                                  Margin="0,0,0,30"
+                                  FontSize="14"
+                                  Foreground="#666666"
+                                  HorizontalAlignment="Center"
+                                  TextAlignment="Center"/>
+                    </StackPanel>
+
+                    <Border Background="#F8F9FA"
+                           BorderBrush="#007BFF"
+                           BorderThickness="2"
+                           CornerRadius="8"
+                           Padding="20"
+                           Margin="0,0,0,20"
+                           Visibility="{Binding ShowWslInstallConfirmation, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="⚠️ Confirm Installation"
+                                      FontSize="16"
+                                      FontWeight="Bold"
+                                      Foreground="#007BFF"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,0,0,15"/>
+                            <TextBlock Text="This will:"
+                                      FontSize="13"
+                                      FontWeight="SemiBold"
+                                      Foreground="#333333"
+                                      Margin="0,0,0,8"/>
+                            <StackPanel Margin="15,0,0,0">
+
+                                <TextBlock Margin="0,0,0,5"
+                                          Visibility="{Binding NeedsHyperVInstall, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Run Text="•" FontWeight="Bold" Foreground="#007BFF"/>
+                                    <Run Text=" Enable Hyper-V" FontSize="13" Foreground="#555555"/>
+                                </TextBlock>
+
+                                <TextBlock Margin="0,0,0,5"
+                                          Visibility="{Binding NeedsWslInstall, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Run Text="•" FontWeight="Bold" Foreground="#007BFF"/>
+                                    <Run Text=" Install Windows Subsystem for Linux (WSL)" FontSize="13" Foreground="#555555"/>
+                                </TextBlock>
+                                <TextBlock Margin="0,0,0,5">
+                                    <Run Text="•" FontWeight="Bold" Foreground="#007BFF"/>
+                                    <Run Text=" Require administrator privileges" FontSize="13" Foreground="#555555"/>
+                                </TextBlock>
+                                <TextBlock Margin="0,0,0,5">
+                                    <Run Text="•" FontWeight="Bold" Foreground="#007BFF"/>
+                                    <Run Text=" Require a system restart" FontSize="13" Foreground="#555555"/>
+                                </TextBlock>
+                            </StackPanel>
+                            <TextBlock Text="Do you want to continue?"
+                                      FontSize="13"
+                                      FontWeight="SemiBold"
+                                      Foreground="#333333"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,15,0,15"/>
+                            <StackPanel Orientation="Horizontal"
+                                       HorizontalAlignment="Center">
+                                <Button Content="✓ Yes"
+                                       Margin="0,0,10,0"
+                                       Command="{Binding ConfirmInstallWslCommand}"
+                                       Background="#28A745"
+                                       Foreground="White"
+                                       Padding="20,10"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       BorderThickness="0"
+                                       Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#28A745"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                               CornerRadius="5"
+                                                               Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center"
+                                                                            VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#218838"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Content="✗ Cancel"
+                                       Command="{Binding CancelInstallWslCommand}"
+                                       Background="#6C757D"
+                                       Foreground="White"
+                                       Padding="20,10"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       BorderThickness="0"
+                                       Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#6C757D"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                               CornerRadius="5"
+                                                               Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center"
+                                                                            VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#5A6268"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,20"
+                               Visibility="{Binding IsInstallingWsl, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid Width="24" Height="24" Margin="0,0,10,0">
+                            <Ellipse Stroke="#28A745" StrokeThickness="3"
+                                    StrokeDashArray="12,6"
+                                    RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.RenderTransform>
+                                    <RotateTransform x:Name="WslInstallSpinnerRotate" Angle="0"/>
+                                </Ellipse.RenderTransform>
+                                <Ellipse.Triggers>
+                                    <EventTrigger RoutedEvent="Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                                               From="0" To="360"
+                                                               Duration="0:0:1.5"
+                                                               RepeatBehavior="Forever"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Ellipse.Triggers>
+                            </Ellipse>
+                        </Grid>
+                        <TextBlock Text="{Binding WslInstallationStatus}"
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  VerticalAlignment="Center"
+                                  Foreground="#28A745"/>
+                    </StackPanel>
+
+                    <Border Background="#F8F9FA"
+                           BorderBrush="#DC3545"
+                           BorderThickness="2"
+                           CornerRadius="8"
+                           Padding="20"
+                           Margin="0,0,0,20"
+                           Visibility="{Binding ShowRestartConfirmation, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="⚠️ Restart Computer?"
+                                      FontSize="16"
+                                      FontWeight="Bold"
+                                      Foreground="#DC3545"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,0,0,15"/>
+                            <TextBlock Text="Your computer will restart after confirmation."
+                                      FontSize="13"
+                                      Foreground="#555555"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,0,0,8"/>
+                            <TextBlock Text="This is required to complete the installation."
+                                      FontSize="13"
+                                      FontWeight="SemiBold"
+                                      Foreground="#333333"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,0,0,15"/>
+                            <StackPanel Orientation="Horizontal"
+                                       HorizontalAlignment="Center">
+                                <Button Content="✓ Yes"
+                                       Margin="0,0,10,0"
+                                       Command="{Binding ConfirmRestartCommand}"
+                                       Background="#DC3545"
+                                       Foreground="White"
+                                       Padding="20,10"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       BorderThickness="0"
+                                       Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#DC3545"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                               CornerRadius="5"
+                                                               Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center"
+                                                                            VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#C82333"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Content="✗ Cancel"
+                                       Command="{Binding CancelRestartCommand}"
+                                       Background="#6C757D"
+                                       Foreground="White"
+                                       Padding="20,10"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       BorderThickness="0"
+                                       Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#6C757D"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                               CornerRadius="5"
+                                                               Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center"
+                                                                            VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#5A6268"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Button Content="🔄 Restart Computer"
+                           Command="{Binding RestartSystemCommand}"
+                           Style="{StaticResource InstallButton}"
+                           HorizontalAlignment="Center"
+                           Height="50"
+                           Padding="30,10"
+                           FontSize="16"
+                           Margin="0,0,0,10"
+                           Visibility="{Binding ShowRestartButton, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                    <Button Content="📥 Install Dependencies"
+                           Command="{Binding InstallWslCommand}"
+                           Style="{StaticResource InstallButton}"
+                           HorizontalAlignment="Center"
+                           Height="50"
+                           Padding="30,10"
+                           FontSize="16"
+                           Visibility="{Binding ShowInstallWslButton, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </StackPanel>
+
+                <Border Padding="20"
+                       Margin="0,20,0,0"
+                       CornerRadius="8"
+                       BorderThickness="2">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="Background" Value="#FFF3CD"/>
+                            <Setter Property="BorderBrush" Value="#FFC107"/>
+                            <Style.Triggers>
+
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsDistributionInstalled}" Value="False"/>
+                                        <Condition Binding="{Binding IsWslInstalled}" Value="True"/>
+                                        <Condition Binding="{Binding IsRestartPending}" Value="False"/>
+                                        <Condition Binding="{Binding IsFullyConfigured}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Setter Property="Background" Value="#FFF3CD"/>
+                                    <Setter Property="BorderBrush" Value="#FFC107"/>
+                                </MultiDataTrigger>
+
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsDistributionInstalled}" Value="False"/>
+                                        <Condition Binding="{Binding IsWslInstalled}" Value="True"/>
+                                        <Condition Binding="{Binding IsRestartPending}" Value="False"/>
+                                        <Condition Binding="{Binding IsFullyConfigured}" Value="True"/>
+                                        <Condition Binding="{Binding ShowDeployConfirmation}" Value="False"/>
+                                        <Condition Binding="{Binding IsDeploying}" Value="False"/>
+                                        <Condition Binding="{Binding IsLoading}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Setter Property="Background" Value="#D4EDDA"/>
+                                    <Setter Property="BorderBrush" Value="#28A745"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                   Margin="0,0,0,10"
+                                   HorizontalAlignment="Center"
+                                   Visibility="{Binding IsFullyConfigured, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="✅"
+                                      FontSize="22"
+                                      Margin="0,0,10,0"
+                                      VerticalAlignment="Center"/>
+                            <TextBlock Text="Ready to Deploy"
+                                      FontSize="18"
+                                      FontWeight="Bold"
+                                      Foreground="#0F5132"
+                                      VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                   Margin="0,0,0,10"
+                                   HorizontalAlignment="Center"
+                                   Visibility="{Binding IsFullyConfigured, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <TextBlock Text="⚠️"
+                                      FontSize="22"
+                                      Margin="0,0,10,0"
+                                      VerticalAlignment="Center"/>
+                            <TextBlock Text="Configuration Required"
+                                      FontSize="18"
+                                      FontWeight="Bold"
+                                      Foreground="#664D03"
+                                      VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,20" HorizontalAlignment="Center">
+
+                            <StackPanel Visibility="{Binding IsFullyConfigured, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <TextBlock Text="Please configure the following:"
+                                          FontSize="14"
+                                          FontWeight="SemiBold"
+                                          Foreground="#664D03"
+                                          HorizontalAlignment="Center"
+                                          Margin="0,0,0,10"/>
+                                <StackPanel Margin="20,0,0,0">
+
+                                    <StackPanel Orientation="Horizontal"
+                                               Margin="0,0,0,5"
+                                               Visibility="{Binding IsPeerIdConfigured, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                        <TextBlock Text="•"
+                                                  FontSize="14"
+                                                  Foreground="#664D03"
+                                                  Margin="0,0,8,0"/>
+                                        <TextBlock Text="Peer ID"
+                                                  FontSize="14"
+                                                  Foreground="#664D03"/>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal"
+                                               Margin="0,0,0,5"
+                                               Visibility="{Binding IsCjdnsPortConfigured, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                        <TextBlock Text="•"
+                                                  FontSize="14"
+                                                  Foreground="#664D03"
+                                                  Margin="0,0,8,0"/>
+                                        <TextBlock Text="CJDNS Port (Settings → CJDNS Config)"
+                                                  FontSize="14"
+                                                  Foreground="#664D03"/>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal"
+                                               Margin="0,0,0,5"
+                                               Visibility="{Binding IsNetworkConfigured, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                        <TextBlock Text="•"
+                                                  FontSize="14"
+                                                  Foreground="#664D03"
+                                                  Margin="0,0,8,0"/>
+                                        <TextBlock Text="Network Configuration"
+                                                  FontSize="14"
+                                                  Foreground="#664D03"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <TextBlock Text="Configuration complete! Ready to deploy the server."
+                                      FontSize="14"
+                                      FontWeight="SemiBold"
+                                      Foreground="#0F5132"
+                                      HorizontalAlignment="Center"
+                                      Visibility="{Binding IsFullyConfigured, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        </StackPanel>
+
+                        <Button Content="⚙️ Open Settings"
+                               Command="{Binding OpenSettingsCommand}"
+                               Background="#FFC107"
+                               Foreground="#333333"
+                               Padding="25,10"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               BorderThickness="0"
+                               Cursor="Hand"
+                               HorizontalAlignment="Center"
+                               Visibility="{Binding IsFullyConfigured, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#FFC107"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                       CornerRadius="5"
+                                                       Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#E0A800"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <Button Content="📦 Deploy Server"
+                               Command="{Binding DeployServerCommand}"
+                               Background="#28A745"
+                               Foreground="White"
+                               Padding="25,10"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               BorderThickness="0"
+                               Cursor="Hand"
+                               HorizontalAlignment="Center"
+                               Visibility="{Binding IsFullyConfigured, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#28A745"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                       CornerRadius="5"
+                                                       Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#218838"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Background" Value="#CCCCCC"/>
+                                            <Setter Property="Foreground" Value="#666666"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#F8F9FA"
+                       BorderThickness="2"
+                       CornerRadius="8"
+                       Padding="20"
+                       Margin="0,20,0,0"
+                       Visibility="{Binding IsDeploying, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#007BFF"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DeploymentComplete}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#28A745"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding DeploymentFailed}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#DC3545"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel>
+
+                        <TextBlock FontSize="16"
+                                  FontWeight="Bold"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,15">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="⚙️ Deploying Server..."/>
+                                    <Setter Property="Foreground" Value="#007BFF"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DeploymentComplete}" Value="True">
+                                            <Setter Property="Text" Value="✅ Deployment Complete"/>
+                                            <Setter Property="Foreground" Value="#28A745"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding DeploymentFailed}" Value="True">
+                                            <Setter Property="Text" Value="❌ Deployment Failed"/>
+                                            <Setter Property="Foreground" Value="#DC3545"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <StackPanel Visibility="{Binding DeploymentComplete, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DeploymentFailed}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <ProgressBar Value="{Binding DeploymentProgress}"
+                                        Minimum="0"
+                                        Maximum="100"
+                                        Height="25"
+                                        Margin="0,0,0,10">
+                                <ProgressBar.Style>
+                                    <Style TargetType="ProgressBar">
+                                        <Setter Property="Background" Value="#E9ECEF"/>
+                                        <Setter Property="Foreground" Value="#007BFF"/>
+                                        <Setter Property="BorderBrush" Value="#CED4DA"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                    </Style>
+                                </ProgressBar.Style>
+                            </ProgressBar>
+
+                            <TextBlock Text="{Binding DeploymentProgress, StringFormat={}{0}%}"
+                                      FontSize="14"
+                                      FontWeight="Bold"
+                                      Foreground="#007BFF"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,0,0,10"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding DeploymentStatus}"
+                                  FontSize="13"
+                                  Foreground="#555555"
+                                  HorizontalAlignment="Center"
+                                  TextWrapping="Wrap"
+                                  TextAlignment="Center"
+                                  Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Please wait... This process may take several minutes."
+                                  FontSize="12"
+                                  FontStyle="Italic"
+                                  Foreground="#6C757D"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,0"
+                                  Visibility="{Binding DeploymentComplete, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DeploymentFailed}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <Button Content="✓ Continue"
+                               Command="{Binding ContinueAfterDeploymentCommand}"
+                               Margin="0,10,0,0"
+                               Padding="20,10"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               BorderThickness="0"
+                               Cursor="Hand"
+                               Visibility="{Binding DeploymentComplete, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#28A745"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                       CornerRadius="5"
+                                                       Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                     VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#218838"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <Button Content="✗ Close"
+                               Command="{Binding ContinueAfterDeploymentCommand}"
+                               Margin="0,10,0,0"
+                               Padding="20,10"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               BorderThickness="0"
+                               Cursor="Hand"
+                               Visibility="{Binding DeploymentFailed, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#6C757D"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                       CornerRadius="5"
+                                                       Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                     VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#5A6268"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#F8F9FA"
+                       BorderBrush="#28A745"
+                       BorderThickness="2"
+                       CornerRadius="8"
+                       Padding="20"
+                       Margin="0,20,0,0"
+                       Visibility="{Binding ShowDeployConfirmation, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="🚀 Confirm Server Deployment"
+                                  FontSize="16"
+                                  FontWeight="Bold"
+                                  Foreground="#28A745"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,15"/>
+                        <TextBlock Text="This will:"
+                                  FontSize="13"
+                                  FontWeight="SemiBold"
+                                  Foreground="#333333"
+                                  Margin="0,0,0,8"/>
+                        <StackPanel Margin="15,0,0,0">
+                            <TextBlock Margin="0,0,0,5">
+                                <Run Text="•" FontWeight="Bold" Foreground="#28A745"/>
+                                <Run Text=" Install the PKTWinNode Ubuntu WSL distribution" FontSize="13" Foreground="#555555"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,0,0,5">
+                                <Run Text="•" FontWeight="Bold" Foreground="#28A745"/>
+                                <Run Text=" Configure CJDNS with your Peer ID" FontSize="13" Foreground="#555555"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,0,0,5">
+                                <Run Text="•" FontWeight="Bold" Foreground="#28A745"/>
+                                <Run Text=" Set up network configuration" FontSize="13" Foreground="#555555"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,0,0,5">
+                                <Run Text="•" FontWeight="Bold" Foreground="#28A745"/>
+                                <Run Text=" Take several minutes to complete" FontSize="13" Foreground="#555555"/>
+                            </TextBlock>
+                        </StackPanel>
+                        <TextBlock Text="Do you want to continue?"
+                                  FontSize="13"
+                                  FontWeight="SemiBold"
+                                  Foreground="#333333"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,15,0,15"/>
+                        <StackPanel Orientation="Horizontal"
+                                   HorizontalAlignment="Center">
+                            <Button Content="✓ Yes"
+                                   Margin="0,0,10,0"
+                                   Command="{Binding ConfirmDeployCommand}"
+                                   Background="#28A745"
+                                   Foreground="White"
+                                   Padding="20,10"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   BorderThickness="0"
+                                   Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#28A745"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                           CornerRadius="5"
+                                                           Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#218838"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="✗ Cancel"
+                                   Command="{Binding CancelDeployCommand}"
+                                   Background="#6C757D"
+                                   Foreground="White"
+                                   Padding="20,10"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   BorderThickness="0"
+                                   Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#6C757D"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                           CornerRadius="5"
+                                                           Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#5A6268"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsServerDeployed}" Value="True"/>
+                                        <Condition Binding="{Binding IsDeploying}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                <Border Background="White"
+                       CornerRadius="12"
+                       Padding="24,18"
+                       BorderBrush="#E8E8E8"
+                       BorderThickness="1">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20"
+                                        ShadowDepth="0"
+                                        Opacity="0.08"
+                                        Color="#000000"/>
+                    </Border.Effect>
+                    <StackPanel HorizontalAlignment="Center">
+
+                        <StackPanel HorizontalAlignment="Center">
+
+                            <Grid Width="50" Height="50"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,12">
+
+                                <Ellipse StrokeThickness="2" Opacity="0.15">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Stroke" Value="#6C757D"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Stopped}">
+                                                    <Setter Property="Stroke" Value="#F59E0B"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.NotInstalled}">
+                                                    <Setter Property="Stroke" Value="#EF4444"/>
+                                                </DataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Running}"/>
+                                                        <Condition Binding="{Binding HasInternetConnection}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Stroke" Value="#10B981"/>
+                                                </MultiDataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Running}"/>
+                                                        <Condition Binding="{Binding HasInternetConnection}" Value="False"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Stroke" Value="#F59E0B"/>
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+
+                                <Ellipse Width="32" Height="32">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="#6C757D"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Stopped}">
+                                                    <Setter Property="Fill" Value="#F59E0B"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.NotInstalled}">
+                                                    <Setter Property="Fill" Value="#EF4444"/>
+                                                </DataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Running}"/>
+                                                        <Condition Binding="{Binding HasInternetConnection}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Fill" Value="#10B981"/>
+                                                </MultiDataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Running}"/>
+                                                        <Condition Binding="{Binding HasInternetConnection}" Value="False"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Fill" Value="#F59E0B"/>
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+
+                                <TextBlock FontSize="16"
+                                          FontWeight="Bold"
+                                          Foreground="White"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="○"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Running}">
+                                                    <Setter Property="Text" Value="✓"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Stopped}">
+                                                    <Setter Property="Text" Value="⏸"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.NotInstalled}">
+                                                    <Setter Property="Text" Value="✕"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+
+                            <TextBlock Text="{Binding StatusMessage}"
+                                      FontSize="18"
+                                      FontWeight="SemiBold"
+                                      HorizontalAlignment="Center"
+                                      TextAlignment="Center"
+                                      Foreground="#1F2937"
+                                      Margin="0,0,0,4"/>
+
+                            <TextBlock FontSize="12"
+                                      FontWeight="Normal"
+                                      Foreground="#6B7280"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,0,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="Server is currently inactive"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Stopped}">
+                                                <Setter Property="Text" Value="Start server to continue"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.NotInstalled}">
+                                                <Setter Property="Text" Value="Deployment required"/>
+                                            </DataTrigger>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Running}"/>
+                                                    <Condition Binding="{Binding HasInternetConnection}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Text" Value="All systems operational"/>
+                                                <Setter Property="Foreground" Value="#6B7280"/>
+                                            </MultiDataTrigger>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Running}"/>
+                                                    <Condition Binding="{Binding HasInternetConnection}" Value="False"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Text" Value="No internet connection"/>
+                                                <Setter Property="Foreground" Value="#D97706"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <Border CornerRadius="10"
+                                   Background="#F3F4F6"
+                                   Padding="10,5"
+                                   Margin="0,10,0,0"
+                                   HorizontalAlignment="Center"
+                                   Visibility="{Binding WslUptime, Converter={StaticResource StringToVisibilityConverter}}">
+                                <TextBlock Text="{Binding WslUptime, StringFormat='Uptime: {0}'}"
+                                          FontSize="11"
+                                          FontWeight="Medium"
+                                          Foreground="#4B5563"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,12,0,0"
+                                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                            <Grid Width="16" Height="16" Margin="0,0,8,0">
+                                <Ellipse Stroke="#3B82F6" StrokeThickness="2.5"
+                                        StrokeDashArray="10,5"
+                                        RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <RotateTransform x:Name="SpinnerRotate" Angle="0"/>
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                                                   From="0" To="360"
+                                                                   Duration="0:0:1"
+                                                                   RepeatBehavior="Forever"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                            </Grid>
+                            <TextBlock Text="Checking status..."
+                                      FontSize="11"
+                                      VerticalAlignment="Center"
+                                      Foreground="#6B7280"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="White"
+                       CornerRadius="12"
+                       Padding="20,14"
+                       BorderBrush="#E8E8E8"
+                       BorderThickness="1"
+                       Margin="0,12,0,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20"
+                                        ShadowDepth="0"
+                                        Opacity="0.08"
+                                        Color="#000000"/>
+                    </Border.Effect>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding CjdnsServiceStatus}" Value="{x:Null}"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </MultiDataTrigger>
+                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Running}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel>
+                        <TextBlock Text="CJDNS Service Status"
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="#1F2937"
+                                  Margin="0,0,0,10"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,16,0">
+                                <Ellipse Width="10" Height="10"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,8,0">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="#6C757D"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CjdnsServiceStatus.IsActive}" Value="True">
+                                                    <Setter Property="Fill" Value="#10B981"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding CjdnsServiceStatus.IsActive}" Value="False">
+                                                    <Setter Property="Fill" Value="#F59E0B"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                                <TextBlock Text="{Binding CjdnsServiceStatus.StatusText}"
+                                          FontSize="13"
+                                          FontWeight="SemiBold"
+                                          Foreground="#1F2937"
+                                          VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <Border Grid.Column="2"
+                                   CornerRadius="8"
+                                   Background="#F3F4F6"
+                                   Padding="10,6"
+                                   Visibility="{Binding CjdnsServiceStatus.Uptime, Converter={StaticResource StringToVisibilityConverter}}">
+                                <TextBlock Text="{Binding CjdnsServiceStatus.Uptime, StringFormat='Uptime: {0}'}"
+                                          FontSize="11"
+                                          FontWeight="Medium"
+                                          Foreground="#4B5563"
+                                          VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+
+                    </StackPanel>
+                </Border>
+
+                <Border Background="White"
+                       CornerRadius="12"
+                       Padding="20,14"
+                       BorderBrush="#E8E8E8"
+                       BorderThickness="1"
+                       Margin="0,12,0,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20"
+                                        ShadowDepth="0"
+                                        Opacity="0.08"
+                                        Color="#000000"/>
+                    </Border.Effect>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsServerDeployed}" Value="True"/>
+                                        <Condition Binding="{Binding IsDeploying}" Value="False"/>
+                                        <Condition Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Running}"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel>
+                        <TextBlock Text="PKT Node Information"
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="#1F2937"
+                                  Margin="0,0,0,10"/>
+
+                        <StackPanel Orientation="Horizontal"
+                                   Margin="0,0,0,8"
+                                   Visibility="{Binding IsLoadingNodeInfo, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid Width="16" Height="16" Margin="0,0,6,0">
+                                <Ellipse Stroke="#3B82F6" StrokeThickness="2.5"
+                                        StrokeDashArray="10,5"
+                                        RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <RotateTransform x:Name="NodeInfoSpinnerRotate" Angle="0"/>
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                                                   From="0" To="360"
+                                                                   Duration="0:0:1"
+                                                                   RepeatBehavior="Forever"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                            </Grid>
+                            <TextBlock Text="Fetching node information..."
+                                      FontSize="11"
+                                      VerticalAlignment="Center"
+                                      Foreground="#6B7280"/>
+                        </StackPanel>
+
+                        <Border CornerRadius="8"
+                               Background="#FEF2F2"
+                               Padding="8,6"
+                               Margin="0,0,0,8"
+                               Visibility="{Binding NodeInfoError, Converter={StaticResource StringToVisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="⚠"
+                                          FontSize="12"
+                                          VerticalAlignment="Top"
+                                          Margin="0,0,6,0"
+                                          Foreground="#DC2626"/>
+                                <TextBlock Text="{Binding NodeInfoError}"
+                                          FontSize="10"
+                                          Foreground="#DC2626"
+                                          TextWrapping="Wrap"
+                                          VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel Visibility="{Binding PktNodeInfo, Converter={StaticResource NullToVisibilityConverter}}">
+
+                            <Border CornerRadius="8"
+                                   Background="#F9FAFB"
+                                   Padding="10,7"
+                                   Margin="0,0,0,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                              Text="Node Name:"
+                                              FontSize="11"
+                                              FontWeight="SemiBold"
+                                              Foreground="#6B7280"
+                                              VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1"
+                                              Text="{Binding PktNodeInfo.Name}"
+                                              FontSize="11"
+                                              FontWeight="SemiBold"
+                                              Foreground="#1F2937"
+                                              TextWrapping="Wrap"
+                                              VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <Border CornerRadius="8"
+                                   Background="#F9FAFB"
+                                   Padding="10,7"
+                                   Margin="0,0,0,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                              Text="Wallet:"
+                                              FontSize="11"
+                                              FontWeight="SemiBold"
+                                              Foreground="#6B7280"
+                                              VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1"
+                                              Text="{Binding PktNodeInfo.Owner}"
+                                              FontSize="10"
+                                              FontWeight="Medium"
+                                              Foreground="#1F2937"
+                                              TextWrapping="Wrap"
+                                              FontFamily="Consolas"
+                                              VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <Border CornerRadius="8"
+                                   Background="#F9FAFB"
+                                   Padding="10,7"
+                                   Margin="0,0,0,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                              Text="Node Status:"
+                                              FontSize="11"
+                                              FontWeight="SemiBold"
+                                              Foreground="#6B7280"
+                                              VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="8" Height="8"
+                                                Margin="0,0,6,0">
+                                            <Ellipse.Fill>
+                                                <MultiBinding Converter="{StaticResource NodeStatusToColorConverter}">
+                                                    <Binding Path="PktNodeInfo.NodeStatus"/>
+                                                    <Binding Path="HasOperationalStatus"/>
+                                                </MultiBinding>
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+                                        <TextBlock FontSize="11"
+                                                  FontWeight="SemiBold">
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{StaticResource NodeStatusToTextConverter}">
+                                                    <Binding Path="PktNodeInfo.NodeStatus"/>
+                                                    <Binding Path="HasOperationalStatus"/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                            <TextBlock.Foreground>
+                                                <MultiBinding Converter="{StaticResource NodeStatusToColorConverter}">
+                                                    <Binding Path="PktNodeInfo.NodeStatus"/>
+                                                    <Binding Path="HasOperationalStatus"/>
+                                                </MultiBinding>
+                                            </TextBlock.Foreground>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0"
+                                       CornerRadius="8"
+                                       Background="#F9FAFB"
+                                       Padding="10,7"
+                                       Margin="0,0,3,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Peer ID"
+                                                  FontSize="10"
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#6B7280"
+                                                  Margin="0,0,0,3"/>
+                                        <TextBlock Text="{Binding PktNodeInfo.PeerId}"
+                                                  FontSize="11"
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#1F2937"
+                                                  TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="1"
+                                       CornerRadius="8"
+                                       Background="#F9FAFB"
+                                       Padding="10,7"
+                                       Margin="3,0,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Daily Yield"
+                                                  FontSize="10"
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#6B7280"
+                                                  Margin="0,0,0,3"/>
+                                        <TextBlock Text="{Binding PktNodeInfo.OperationalStatus.DailyYield, Converter={StaticResource HexYieldToDecimalConverter}, FallbackValue='N/A'}"
+                                                  FontSize="11"
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#1F2937"
+                                                  TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                </StackPanel>
+            </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="3"
+                Background="White"
+                CornerRadius="8"
+                Padding="20"
+                Margin="0,0,0,20"
+                Visibility="{Binding ShowServerControls, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10"
+                                ShadowDepth="2"
+                                Opacity="0.2"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="Server Controls"
+                          FontSize="16"
+                          FontWeight="SemiBold"
+                          Margin="0,0,0,15"/>
+
+                <Button Height="40">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ModernButton}">
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Stopped}">
+                                    <Setter Property="Content" Value="▶ Start Server"/>
+                                    <Setter Property="Command" Value="{Binding StartServerCommand}"/>
+                                    <Setter Property="Background" Value="#007ACC"/>
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:WslServerStatus.Running}">
+                                    <Setter Property="Content" Value="⏹ Stop Server"/>
+                                    <Setter Property="Command" Value="{Binding StopServerCommand}"/>
+                                    <Setter Property="Background" Value="#DC3545"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</Window>
